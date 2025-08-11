@@ -175,22 +175,34 @@
         }
     });
 
-    // Display results
-    function displayResults(results) {
-        results.forEach((result, index) => {
-            const resultHtml = `
-                <div class="card result-card">
-                    <div class="card-header">
-                        <h5 class="mb-0">${result.filename || 'Result'}</h5>
-                    </div>
-                    <div class="card-body">
-                        <pre class="mb-0">${JSON.stringify(result, null, 2)}</pre>
-                    </div>
+    
+	
+	
+	
+	
+	function displayResults(resultData) {
+    // Clear previous results
+    results.innerHTML = '';
+    
+    // Check if resultData is an array, if not make it an array
+    const resultsArray = Array.isArray(resultData) ? resultData : [resultData];
+    
+    resultsArray.forEach((result, index) => {
+        const resultHtml = `
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0">${result.filename || 'Result ' + (index + 1)}</h5>
                 </div>
-            `;
-            results.insertAdjacentHTML('beforeend', resultHtml);
-        });
-    }
+                <div class="card-body">
+                    <pre class="mb-0" style="max-height: 300px; overflow-y: auto;">${JSON.stringify(result, null, 2)}</pre>
+                </div>
+            </div>
+        `;
+        results.insertAdjacentHTML('beforeend', resultHtml);
+    });
+}
+	
+	
 });
     </script>
 </body>
