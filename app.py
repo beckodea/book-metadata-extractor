@@ -1,10 +1,13 @@
+import io
 from flask import Flask, render_template, request, jsonify, send_from_directory
 import os
 from werkzeug.utils import secure_filename
 import json
 from datetime import datetime
+import io
 from metadata_extractor import extract_metadata
-import tempfile
+
+
 
 app = Flask(__name__)
 
