@@ -84,16 +84,18 @@ def extract_publication_date(text):
 
 def extract_metadata(file_obj):
     try:
-        # Read the image file
+        # Ensure we're at the start of the file
+        file_obj.seek(0)
+        
+        # Convert file object to bytes
         file_bytes = file_obj.read()
         
-        # Convert to numpy array
+        # Convert to numpy array for OpenCV
         nparr = np.frombuffer(file_bytes, np.uint8)
         img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         
         if img is None:
-            logger.error("Failed to decode image")
-            return {"error": "Could not decode the image"}
+            return {"error": "Could not process the image"}
             
         # Convert to grayscale
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -101,25 +103,25 @@ def extract_metadata(file_obj):
         # Apply thresholding
         gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
         
-        # Extract text
+        # Try different page segmentation modes
         custom_config = r'--oem 3 --psm 6'
         text = pytesseract.image_to_string(gray, config=custom_config)
         
         if not text.strip():
-            logger.error("No text could be extracted from the image")
+            # Try with a different page segmentation mode
+            custom_config = r'--oem 3 --psm 3'
+            text = pytesseract.image_to_string(gray, config=custom_config)
+        
+        if not text.strip():
             return {"error": "No text could be extracted from the image"}
             
-        # Process the extracted text
-        # ... (rest of your existing code)
-        
+        # For now, return the first 200 characters of extracted text
+        # You can add your metadata extraction logic here
         return {
-            "title": "Sample Title",  # Replace with actual extraction
-            "authors": ["Author 1"],  # Replace with actual extraction
-            "isbn": "1234567890",     # Replace with actual extraction
-            "text_sample": text[:200]  # Return first 200 chars for debugging
+            "text_sample": text[:200],
+            "filename": getattr(file_obj, 'filename', 'unknown')
         }
         
     except Exception as e:
-        logger.error(f"Error processing image: {str(e)}")
         return {"error": f"Error processing image: {str(e)}"}
         

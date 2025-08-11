@@ -37,14 +37,26 @@ def upload_file():
     
     for file in files:
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(filepath)
-            
-            # Extract metadata
-            metadata = extract_metadata(filepath)
-            metadata['filename'] = filename
-            results.append(metadata)
+            try:
+                # Reset file pointer to beginning in case it was read before
+                file.seek(0)
+                
+                # Read the file into memory
+                file_data = file.read()
+                
+                # Create a BytesIO object from the file data
+                file_obj = io.BytesIO(file_data)
+                file_obj.filename = secure_filename(file.filename)
+                
+                # Extract metadata
+                metadata = extract_metadata(file_obj)
+                metadata['filename'] = file.filename
+                results.append(metadata)
+            except Exception as e:
+                results.append({
+                    'error': f'Error processing {file.filename}: {str(e)}',
+                    'filename': file.filename
+                })
     
     return jsonify(results)
 
