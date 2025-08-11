@@ -2,7 +2,7 @@ services:
   - type: web
     name: book-metadata-extractor
     env: python
-    buildCommand: "pip install -r requirements.txt"
+    buildCommand: "./build.sh"
     startCommand: "gunicorn app:app"
     envVars:
       - key: PYTHON_VERSION
@@ -11,4 +11,4 @@ services:
         value: 10000
       - key: PYTHONUNBUFFERED
         value: true
-    plan: free
+    plan: free    
